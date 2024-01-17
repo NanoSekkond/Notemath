@@ -7,24 +7,42 @@ import java.math.BigDecimal;
 
 public class Calculator {
     static final String numberRegex = "-?[0-9]+(\\.[0-9]+)?";
+    private int roundPrecision;
+    //private int maxLength = 10;
+
+    public Calculator(int roundPrecision) {
+        this.roundPrecision = roundPrecision;
+    }
+
     public String doMath(String expression) {
-        if (expression.isEmpty()) {
-            return new Exception("Error: Not a valid expression.").getMessage();
-        }
-        expression = getCleanExpression(expression);
-        int currentPrio = 3;
+        expression = expression.replaceAll("\\s", "");
+        int currentPrio = 5;
         while (currentPrio >= 0) {
-            System.out.println(expression);
-            if (currentPrio != 3) {
-                expression = cleanSubtraction(expression);
-                String opRegex = operatorRegex(currentPrio);
-                Scanner sc = new Scanner(expression);
-                String match = sc.findInLine(numberRegex + opRegex + numberRegex);
-                sc.close();
-                if (match == null) {
-                    currentPrio--;
-                } else {
-                    expression = expression.replace(match, simpleExpression(match));
+            //System.out.println(expression);
+            if (currentPrio != 5) {
+                if (currentPrio < 3) {
+                    expression = cleanSubtraction(expression);
+                    String opRegex = operatorRegex(currentPrio);
+                    Scanner sc = new Scanner(expression);
+                    String match = sc.findInLine(numberRegex + opRegex + numberRegex);
+                    sc.close();
+                    if (match == null) {
+                        currentPrio--;
+                    } else {
+                        expression = expression.replace(match, simpleExpression(match));
+                    }
+                }
+                else {
+                    expression = cleanSubtraction(expression);
+                    String opRegex = operatorRegex(currentPrio);
+                    Scanner sc = new Scanner(expression);
+                    String match = sc.findInLine(numberRegex + opRegex);
+                    sc.close();
+                    if (match == null) {
+                        currentPrio--;
+                    } else {
+                        expression = expression.replace(match, simpleExpression(match));
+                    }
                 }
             } else {
                 String match = findParentheses(expression);
@@ -35,8 +53,9 @@ public class Calculator {
                 }
             }
         }
-        expression = roundExpression(expression);
         if (isValidRes(expression)){
+            expression = roundExpression(expression);
+            //expression = shortExpression(expression);
             return expression;
         }
         return new Exception("Error: Not a valid expression.").getMessage();
@@ -52,23 +71,39 @@ public class Calculator {
     private String simpleExpression(String expression) {
         Scanner sc = new Scanner(expression);
         BigDecimal firstNum = new BigDecimal(sc.findInLine(numberRegex));
-        String operator = sc.findInLine("[\\+\\-\\*\\/\\^]");
-        BigDecimal secondNum = new BigDecimal(sc.findInLine(numberRegex));
+        String operator = sc.findInLine("[\\+\\-\\*\\/\\^\\!\\%]");
+        String secondNumString = sc.findInLine(numberRegex);
+        BigDecimal secondNum = new BigDecimal(0);
+        if (secondNumString != null) {
+            secondNum = new BigDecimal(secondNumString);
+        }
         sc.close();
         switch(operator) {
             case "+":
-                return firstNum.add(secondNum).toString();
+                return firstNum.add(secondNum).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
             case "-":
-                return firstNum.subtract(secondNum).toString();
+                return firstNum.subtract(secondNum).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
             case "*":
-                return firstNum.multiply(secondNum).toString();
+                return firstNum.multiply(secondNum).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
             case "/":
-                return firstNum.divide(secondNum, 5, RoundingMode.HALF_UP).toString();
+                return firstNum.divide(secondNum, roundPrecision, RoundingMode.HALF_UP).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
             case "^":
                 return firstNum.pow(secondNum.intValue()).toString();
+            case "%":
+                return firstNum.divide(new BigDecimal(100), roundPrecision, RoundingMode.HALF_UP).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
+            case "!":
+                return calculateFactorial(firstNum.intValue()).toString();
             default:
                 return "";
         }
+    }
+
+    private BigDecimal calculateFactorial (int number) {
+        BigDecimal factorial = BigDecimal.ONE;
+        for (int i = 1; i <= number; i++) {
+            factorial = factorial.multiply(new BigDecimal(i));
+        }
+        return factorial;
     }
 
     private String findParentheses(String expression) {
@@ -104,6 +139,10 @@ public class Calculator {
 
     private String operatorRegex(int i) {
         switch (i) {
+            case 4:
+                return "\\%";
+            case 3:
+                return "\\!";
             case 2:
                 return "\\^";
             case 1:
@@ -117,25 +156,27 @@ public class Calculator {
 
     private String roundExpression(String expression) {
         Scanner sc = new Scanner(expression);
-        String match = sc.findInLine("\\.[0-9]+");
+        String match = sc.findInLine("(?<=\\..{0," + roundPrecision + "})0+$");
         sc.close();
-        if (match != null && match.equals(".0")) {
-            expression = expression.substring(0, expression.length() - 2);
+        System.out.println(expression);
+        if (match != null) {
+            expression = expression.replaceAll(match, "");
+        }
+        if (expression.charAt(expression.length() - 1) == '.') {
+            expression = expression.substring(0, expression.length() - 1);
+        }
+        System.out.println(expression);
+        return expression;
+    }
+    /*
+    private String shortExpression(String expression) {
+        if (expression.length() > maxLength) {
+            String first = expression.substring(0, 1) + "." + expression.substring(1, maxLength);
+            String second = expression.substring(maxLength, expression.length());
+            first += "E+" + (second.length() + maxLength);
+            expression = first;
         }
         return expression;
     }
-
-    private String getCleanExpression(String expression) {
-        expression = expression.replaceAll("^\\d\\.\\s", "");
-        System.out.println(expression);
-        expression = expression.replaceAll("\\s+", "");
-        System.out.println(expression);
-        Scanner sc = new Scanner(expression);
-        expression = sc.findInLine("[\\d\\(\\)\\+\\-\\*\\/\\^\\.]*$");
-        sc.close();
-        if (expression == null) {
-            expression = "";
-        }
-        return expression;
-    }
+    */
 }

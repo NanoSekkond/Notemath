@@ -25,7 +25,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     private EditText titleEditText, descEditText;
     private int lastChange, oldLastChange, lineStart;
 
-    private static final Calculator calc = new Calculator();
+    private static final Calculator calc = new Calculator(5);
 
     private Note selectedNote;
 
@@ -205,6 +205,7 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private void equalCommand(String text) {
         String expression = text.substring(lineStart, lastChange);
+        expression = getCleanExpression(expression);
         String res = calc.doMath(expression);
         String match = new Scanner(res).findInLine("^Error:");
         if (match == null) {
@@ -216,7 +217,6 @@ public class NoteDetailActivity extends AppCompatActivity {
                 descEditText.setSelection(oldLastChange + res.length() + 2);
             }
             else {
-                expression = getCleanExpression(expression);
                 String newText = text.substring(0, lastChange - expression.length());
                 newText += new Scanner(expression).findInLine("^\\s*") + res;
                 newText += text.substring(lastChange + 1);
@@ -231,9 +231,8 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private String getCleanExpression(String expression) {
         expression = expression.replaceAll("^\\d\\.\\s", "");
-        System.out.println(expression);
         Scanner sc = new Scanner(expression);
-        expression = sc.findInLine("[\\d\\(\\)\\+\\-\\*\\/\\^\\.\\s]*$");
+        expression = sc.findInLine("[\\d\\(\\)\\+\\-\\*\\/\\^\\.\\s\\%\\!]*$");
         sc.close();
         if (expression == null) {
             expression = "";
