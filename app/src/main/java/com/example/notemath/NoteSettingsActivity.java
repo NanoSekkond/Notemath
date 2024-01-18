@@ -26,14 +26,14 @@ public class NoteSettingsActivity extends AppCompatActivity {
 
     private void initWidgets() {
         fontSizeBar = findViewById(R.id.fontSizeBar);
-        sliderText = findViewById(R.id.sliderText);
-        exampleText = findViewById(R.id.exampleText);
+        sliderText = findViewById(R.id.fontSizeTitle);
+        //exampleText = findViewById(R.id.exampleText);
         fontSizeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progress += minFontSize;
                 sliderText.setText("Font size: " + progress);
-                exampleText.setTextSize(progress);
+                //exampleText.setTextSize(progress);
             }
 
             @Override

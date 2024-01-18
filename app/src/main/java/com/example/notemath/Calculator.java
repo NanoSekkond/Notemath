@@ -80,17 +80,17 @@ public class Calculator {
         sc.close();
         switch(operator) {
             case "+":
-                return firstNum.add(secondNum).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
+                return firstNum.add(secondNum).toString();
             case "-":
-                return firstNum.subtract(secondNum).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
+                return firstNum.subtract(secondNum).toString();
             case "*":
-                return firstNum.multiply(secondNum).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
+                return firstNum.multiply(secondNum).toString();
             case "/":
-                return firstNum.divide(secondNum, roundPrecision, RoundingMode.HALF_UP).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
+                return firstNum.divide(secondNum, 15, RoundingMode.HALF_UP).toString();
             case "^":
                 return firstNum.pow(secondNum.intValue()).toString();
             case "%":
-                return firstNum.divide(new BigDecimal(100), roundPrecision, RoundingMode.HALF_UP).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
+                return firstNum.divide(new BigDecimal(100), 15, RoundingMode.HALF_UP).toString();
             case "!":
                 return calculateFactorial(firstNum.intValue()).toString();
             default:
@@ -155,17 +155,18 @@ public class Calculator {
     }
 
     private String roundExpression(String expression) {
+        expression = new BigDecimal(expression).setScale(roundPrecision, RoundingMode.HALF_UP).toString();
         Scanner sc = new Scanner(expression);
         String match = sc.findInLine("(?<=\\..{0," + roundPrecision + "})0+$");
         sc.close();
-        System.out.println(expression);
+        //System.out.println(expression);
         if (match != null) {
-            expression = expression.replaceAll(match, "");
+            expression = expression.replaceAll(match + "$", "");
         }
         if (expression.charAt(expression.length() - 1) == '.') {
             expression = expression.substring(0, expression.length() - 1);
         }
-        System.out.println(expression);
+        //System.out.println(expression);
         return expression;
     }
     /*

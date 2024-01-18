@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,28 +21,66 @@
                 android:textStyle="bold"
                 android:layout_centerHorizontal="true"/>
         </RelativeLayout>
-        <TextView
-            android:id="@+id/sliderText"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Font size:"
-            android:textSize="20dp">
-        </TextView>
-        <SeekBar
+            android:orientation="vertical"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/fontSizeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Font size:"
+                android:textColor="@color/darkGray"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+            <SeekBar
+                android:id="@+id/fontSizeBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:max="54"
+                android:paddingVertical="10dp"/>
+            <!--
+            <TextView
+                android:id="@+id/exampleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="The quick brown fox jumps over the lazy dog."
+                android:textSize="20dp"/>
+            -->
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/gray"/>
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/fontSizeBar"
-            android:paddingVertical="10dp"
-            android:max="54"
-            android:layout_margin="10dp">
-        </SeekBar>
-        <TextView
-            android:id="@+id/exampleText"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Setting Title:"
+                android:textColor="@color/darkGray"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="The quick brown fox jumps over the lazy dog."
-            android:textSize="40dp"
-            android:layout_margin="10dp"/>
+            android:layout_height="3dp"
+            android:background="@color/gray"/>
+
+
     </LinearLayout>
     <android.widget.Button
         android:layout_width="70dp"
