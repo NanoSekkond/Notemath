@@ -4,8 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,7 +71,7 @@ public class NoteDetailActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String text = s.toString();
+                Editable text = s;
                 if (lastChange >= 0 && text.charAt(lastChange) == '=' && oldLastChange < lastChange) {
                     equalCommand(text);
                 }
@@ -145,6 +149,26 @@ public class NoteDetailActivity extends AppCompatActivity {
         });
     }
 
+    public void setBold(View view) {
+        int start = descEditText.getSelectionStart();
+        int end = descEditText.getSelectionEnd();
+        SpannableStringBuilder newText = new SpannableStringBuilder(descEditText.getText());
+        newText.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        descEditText.setText(newText);
+        descEditText.setSelection(oldLastChange + 1);
+        System.out.println(newText);
+    }
+
+    public void setItalic(View view) {
+        int start = descEditText.getSelectionStart();
+        int end = descEditText.getSelectionEnd();
+        SpannableStringBuilder newText = new SpannableStringBuilder(descEditText.getText());
+        newText.setSpan(new android.text.style.StyleSpan(Typeface.ITALIC), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        descEditText.setText(newText);
+        descEditText.setSelection(oldLastChange + 1);
+        System.out.println(newText);
+    }
+
     public void openNoteSettings() {
         saveNote(null);
         Intent noteSettingsIntent = new Intent(this, NoteSettingsActivity.class);
@@ -203,23 +227,25 @@ public class NoteDetailActivity extends AppCompatActivity {
         return res;
     }
 
-    private void equalCommand(String text) {
-        String expression = text.substring(lineStart, lastChange);
+    private void equalCommand(Editable text) {
+        String expression = text.toString().substring(lineStart, lastChange);
         expression = getCleanExpression(expression);
         String res = calc.doMath(expression);
         String match = new Scanner(res).findInLine("^Error:");
         if (match == null) {
             if (text.charAt(lastChange - 1) == ' ') {
-                String newText = text.substring(0, lastChange) + "=";
-                newText += " " + res;
-                newText += text.substring(lastChange + 1);
+                SpannableStringBuilder newText = new SpannableStringBuilder(text.subSequence(0, lastChange))
+                        .append("= ")
+                        .append(res)
+                        .append(text.subSequence(lastChange + 1, text.length()));
                 descEditText.setText(newText);
                 descEditText.setSelection(oldLastChange + res.length() + 2);
             }
             else {
-                String newText = text.substring(0, lastChange - expression.length());
-                newText += new Scanner(expression).findInLine("^\\s*") + res;
-                newText += text.substring(lastChange + 1);
+                SpannableStringBuilder newText = new SpannableStringBuilder(text.subSequence(0, lastChange - expression.length()))
+                        .append(new Scanner(expression).findInLine("^\\s*"))
+                        .append(res)
+                        .append(text.subSequence(lastChange + 1, text.length()));
                 descEditText.setText(newText);
                 descEditText.setSelection(oldLastChange - new Scanner(expression).findInLine("\\S+.*").length() + res.length());
             }
@@ -240,17 +266,18 @@ public class NoteDetailActivity extends AppCompatActivity {
         return expression;
     }
 
-    private void listCommand(String text) {
-        Scanner sc = new Scanner(text.substring(lineStart, lastChange));
+    private void listCommand(Editable text) {
+        Scanner sc = new Scanner(text.toString().substring(lineStart, lastChange));
         String match = sc.findInLine("^\\d+\\.\\s");
         sc.close();
         if (match != null) {
-            String newText = "";
-            int count = Integer.valueOf(match.substring(0, match.length() - 2)) + 1;
-            newText += text.substring(0, lastChange + 1);
-            newText += count + ". ";
+            int count = Integer.parseInt(match.substring(0, match.length() - 2)) + 1;
+            SpannableStringBuilder newText = new SpannableStringBuilder(text.subSequence(0, lastChange + 1))
+                    .append(String.valueOf(count))
+                    .append(". ");
             if (text.length() > lastChange + 2) {
-                newText += "\n" + text.substring(lastChange + 2);
+                newText.append("\n")
+                        .append(text.subSequence(lastChange + 2, text.length()));
             }
             descEditText.setText(newText);
             descEditText.setSelection(oldLastChange + (count +". ").length() + 1);
