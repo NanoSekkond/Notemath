@@ -25,7 +25,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     private EditText titleEditText, descEditText;
     private int lastChange, oldLastChange, lineStart;
 
-    private static final Calculator calc = new Calculator(5);
+    private Calculator calc;
 
     private Note selectedNote;
 
@@ -162,6 +162,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         }
         titleEditText.setTextSize(settings.getFontSize());
         descEditText.setTextSize(settings.getFontSize());
+        calc = new Calculator(settings.getRoundPrecision());
     }
 
     public void deleteNote(View view) {

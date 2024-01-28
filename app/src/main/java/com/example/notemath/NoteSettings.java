@@ -4,43 +4,25 @@ import android.graphics.Color;
 
 public class NoteSettings {
     public static final String SETTINGS_SELECTED_NOTE = "selectedNoteSettings";
-    Color main, secondary;
-    int fontSize;
+    int fontSize, roundPrecision;
 
-    public static NoteSettings defaultNoteSettings = new NoteSettings(new Color(), new Color(), 20);
+    public static NoteSettings defaultNoteSettings = new NoteSettings(20, 5);
 
     public String toString() {
         String res = "";
-        res += "FontSize: " + fontSize;
+        res += "FontSize: " + fontSize + ", ";
+        res += "RoundPrecision: " + roundPrecision;
         return res;
     }
 
-    public NoteSettings(Color main, Color secondary, int fontSize) {
-        this.main = main;
-        this.secondary = secondary;
+    public NoteSettings(int fontSize, int roundPrecision) {
         this.fontSize = fontSize;
+        this.roundPrecision = roundPrecision;
     }
 
     public NoteSettings(NoteSettings otherNoteSettings) {
-        this.main = otherNoteSettings.getMain();
-        this.secondary = otherNoteSettings.getSecondary();
         this.fontSize = otherNoteSettings.getFontSize();
-    }
-
-    public Color getMain() {
-        return main;
-    }
-
-    public void setMain(Color main) {
-        this.main = main;
-    }
-
-    public Color getSecondary() {
-        return secondary;
-    }
-
-    public void setSecondary(Color secondary) {
-        this.secondary = secondary;
+        this.roundPrecision = otherNoteSettings.getRoundPrecision();
     }
 
     public int getFontSize() {
@@ -49,5 +31,13 @@ public class NoteSettings {
 
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public int getRoundPrecision() {
+        return roundPrecision;
+    }
+
+    public void setRoundPrecision(int roundPrecision) {
+        this.roundPrecision = roundPrecision;
     }
 }

@@ -27,16 +27,30 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="10dp">
-            <TextView
-                android:id="@+id/fontSizeTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Font size:"
-                android:textColor="@color/darkGray"
-                android:textSize="20dp"
-                android:textStyle="bold"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/fontSizeTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Font size:"
+                    android:textColor="@color/darkGray"
+                    android:textSize="20dp"
+                    android:textStyle="bold"/>
+                <ImageButton
+                    android:id="@+id/fontSizeButton"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/info_button"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@color/white"
+                    android:onClick="moreInfo"
+                    android:layout_marginEnd="10dp"/>
+            </RelativeLayout>
             <SeekBar
                 android:id="@+id/fontSizeBar"
                 android:layout_width="match_parent"
@@ -63,17 +77,41 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="10dp">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/roundPrecisionTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Digits after decimal point:"
+                    android:textColor="@color/darkGray"
+                    android:textSize="20dp"
+                    android:textStyle="bold"/>
+                <ImageButton
+                    android:id="@+id/roundPrecisionButton"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/info_button"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@color/white"
+                    android:onClick="moreInfo"
+                    android:layout_marginEnd="10dp"/>
+            </RelativeLayout>
+            <SeekBar
+                android:id="@+id/roundPrecisionBar"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Setting Title:"
-                android:textColor="@color/darkGray"
-                android:textSize="20dp"
-                android:textStyle="bold"/>
+                android:layout_margin="10dp"
+                android:max="15"
+                android:paddingVertical="10dp"/>
+            <!--<TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="(When doing "/>-->
         </LinearLayout>
         <View
             android:layout_width="match_parent"
