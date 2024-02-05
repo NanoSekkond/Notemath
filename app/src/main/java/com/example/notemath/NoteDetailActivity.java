@@ -1,5 +1,6 @@
 package com.example.notemath;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -74,6 +75,13 @@ public class NoteDetailActivity extends AppCompatActivity {
                 else if (lastChange >= 0 && text.charAt(lastChange) == '\n' && oldLastChange < lastChange) {
                     listCommand(text);
                 }
+            }
+        });
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                saveNote(null);
+                finish();
             }
         });
     }
@@ -207,7 +215,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     private void equalCommand(String text) {
         String expression = text.substring(lineStart, lastChange);
         expression = getCleanExpression(expression);
-        String res = calc.doMath(expression);
+        String res = calc.doMath(expression, false);
         String match = new Scanner(res).findInLine("^Error:");
         if (match == null) {
             if (text.charAt(lastChange - 1) == ' ') {

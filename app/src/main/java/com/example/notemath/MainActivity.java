@@ -2,8 +2,10 @@ package com.example.notemath;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         initWidgets();
         loadFromDBToMemory();
         setNoteAdapter();
-        setOnClickListener();
+        setOnClickListeners();
     }
 
     @Override
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         sqLiteManager.populateNoteListArray();
     }
 
-    private void setOnClickListener() {
+    private void setOnClickListeners() {
         noteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -61,11 +63,48 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(editNoteIntent);
             }
         });
+
+        noteListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                PopupMenu popup = new PopupMenu(getApplicationContext(), view, Gravity.END);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.main_activity_note_menu, popup.getMenu());
+                popup.show();
+
+                Note selectedNote = (Note) noteListView.getItemAtPosition(position);
+                MenuItem deleteButton = popup.getMenu().findItem(R.id.deleteNote);
+                deleteButton.setOnMenuItemClickListener(item -> {
+                    deleteNote(selectedNote);
+                    return false;
+                });
+                return true;
+            }
+        });
     }
 
     public void newNote(View view) {
         Intent newNoteIntent = new Intent(this, NoteDetailActivity.class);
         startActivity(newNoteIntent);
+    }
+
+    private void deleteNote(Note selectedNote) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Are you sure you want to delete this note?").setTitle("Delete");
+        builder.setPositiveButton("Yes",
+                (dialog, which) -> {
+                    if (selectedNote != null) {
+                        Note.noteArrayList.remove(selectedNote);
+                        SQLiteManager sqLiteManager = SQLiteManager.instanceOfDatabase(this);
+                        sqLiteManager.deleteNoteFromDB(selectedNote);
+                        setNoteAdapter();
+                    }
+                });
+        builder.setNegativeButton("No",
+                (dialog, which) -> {
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public void showPopupOptions(View view) {

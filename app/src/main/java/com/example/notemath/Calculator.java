@@ -7,14 +7,14 @@ import java.math.BigDecimal;
 
 public class Calculator {
     static final String numberRegex = "-?[0-9]+(\\.[0-9]+)?";
-    private int roundPrecision;
+    private final int roundPrecision;
     //private int maxLength = 10;
 
     public Calculator(int roundPrecision) {
         this.roundPrecision = roundPrecision;
     }
 
-    public String doMath(String expression) {
+    public String doMath(String expression, boolean recursiveFlag) {
         expression = expression.replaceAll("\\s", "");
         int currentPrio = 5;
         while (currentPrio >= 0) {
@@ -49,12 +49,14 @@ public class Calculator {
                 if (match.isEmpty()) {
                     currentPrio--;
                 } else {
-                    expression = expression.replace(match, doMath(match.substring(1, match.length() - 1)));
+                    expression = expression.replace(match, doMath(match.substring(1, match.length() - 1), true));
                 }
             }
         }
         if (isValidRes(expression)){
-            expression = roundExpression(expression);
+            if (recursiveFlag == false) {
+                expression = roundExpression(expression);
+            }
             //expression = shortExpression(expression);
             return expression;
         }
@@ -86,11 +88,11 @@ public class Calculator {
             case "*":
                 return firstNum.multiply(secondNum).toString();
             case "/":
-                return firstNum.divide(secondNum, 15, RoundingMode.HALF_UP).toString();
+                return firstNum.divide(secondNum, 5, RoundingMode.HALF_UP).toString();
             case "^":
                 return firstNum.pow(secondNum.intValue()).toString();
             case "%":
-                return firstNum.divide(new BigDecimal(100), 15, RoundingMode.HALF_UP).toString();
+                return firstNum.divide(new BigDecimal(100), 5, RoundingMode.HALF_UP).toString();
             case "!":
                 return calculateFactorial(firstNum.intValue()).toString();
             default:

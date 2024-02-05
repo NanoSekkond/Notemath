@@ -6,7 +6,7 @@ public class NoteSettings {
     public static final String SETTINGS_SELECTED_NOTE = "selectedNoteSettings";
     int fontSize, roundPrecision;
 
-    public static NoteSettings defaultNoteSettings = new NoteSettings(20, 5);
+    public static NoteSettings defaultNoteSettings = new NoteSettings(20, 2);
 
     public String toString() {
         String res = "";
