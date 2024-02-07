@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
 
@@ -24,6 +25,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
     private static final String DESC_FIELD = "desc";
     private static final String EDITED_FIELD = "date";
     private static final String LAST_CHANGE_FIELD = "lastChange";
+    private static final String SETTINGS_FIELD = "settings";
 
 
     public SQLiteManager(Context context) {
@@ -45,8 +47,19 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 TITLE_FIELD + " TEXT, " +
                 DESC_FIELD + " TEXT, " +
                 EDITED_FIELD + " BIGINT, " +
-                LAST_CHANGE_FIELD + " INT)";
+                LAST_CHANGE_FIELD + " INT, " +
+                SETTINGS_FIELD + " TEXT" +
+                ")";
         db.execSQL(sql);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ID_FIELD, -2);
+        contentValues.put(TITLE_FIELD, "");
+        contentValues.put(DESC_FIELD, "");
+        contentValues.put(EDITED_FIELD, 0);
+        contentValues.put(LAST_CHANGE_FIELD, 0);
+        contentValues.put(SETTINGS_FIELD, "20,2");
+        db.insert(TABLE_NAME, null, contentValues);
+        System.out.println("Db created");
     }
 
     @Override
@@ -62,6 +75,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         contentValues.put(DESC_FIELD, note.getDescription());
         contentValues.put(EDITED_FIELD, note.getDate());
         contentValues.put(LAST_CHANGE_FIELD, note.getLastChange());
+        contentValues.put(SETTINGS_FIELD, note.getNoteSettings().serialize());
 
         sqLiteDatabase.insert(TABLE_NAME, null, contentValues);
         System.out.println("Note added " + note.getId());
@@ -73,12 +87,16 @@ public class SQLiteManager extends SQLiteOpenHelper {
         if (res.getCount() != 0) {
             while (res.moveToNext()) {
                 int id = res.getInt(1);
-                String title = res.getString(2);
-                String desc = res.getString(3);
-                long edited = res.getLong(4);
-                int lastChange = res.getInt(5);
-                Note note = new Note(id, title, desc, edited, lastChange, NoteSettings.defaultNoteSettings);
-                Note.noteArrayList.add(note);
+                if (id >= 0) {
+                    String title = res.getString(2);
+                    String desc = res.getString(3);
+                    long edited = res.getLong(4);
+                    int lastChange = res.getInt(5);
+                    NoteSettings settings = new NoteSettings(res.getString(6));
+                    Note note = new Note(id, title, desc, edited, lastChange, settings);
+                    Note.noteArrayList.add(note);
+                    System.out.println(note);
+                }
             }
         }
     }
@@ -91,6 +109,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         contentValues.put(DESC_FIELD, note.getDescription());
         contentValues.put(EDITED_FIELD, note.getDate());
         contentValues.put(LAST_CHANGE_FIELD, note.getLastChange());
+        contentValues.put(SETTINGS_FIELD, note.getNoteSettings().serialize());
 
         sqLiteDatabase.update(TABLE_NAME, contentValues, ID_FIELD + " =? ", new String[]{String.valueOf(note.getId())});
     }
@@ -99,5 +118,17 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         sqLiteDatabase.delete(TABLE_NAME, ID_FIELD + " =? ", new String[]{String.valueOf(note.getId())});
         System.out.println("Note deleted " + note.getId());
+    }
+
+    public Note getNoteFromDB(int id) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        Cursor res = sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE " + ID_FIELD + " = " + id, null);
+        res.moveToNext();
+        String title = res.getString(2);
+        String desc = res.getString(3);
+        long edited = res.getLong(4);
+        int lastChange = res.getInt(5);
+        NoteSettings settings = new NoteSettings(res.getString(6));
+        return new Note(id, title, desc, edited, lastChange, settings);
     }
 }

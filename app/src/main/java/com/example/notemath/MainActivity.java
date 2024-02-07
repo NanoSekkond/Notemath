@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //getApplicationContext().deleteDatabase("NotesDB");
         setContentView(R.layout.activity_main);
         /*
         SQLiteManager sqLiteManager = SQLiteManager.instanceOfDatabase(this);
@@ -130,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openSettings(View view) {
-        System.out.println("Opening Settings");
+        Intent settingsIntent = new Intent(this, GeneralSettingsActivity.class);
+        startActivity(settingsIntent);
     }
 }

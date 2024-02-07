@@ -7,12 +7,14 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class NoteSettingsActivity extends AppCompatActivity {
 
     SeekBar fontSizeBar, roundPrecisionBar;
     Note selectedNote;
+    NoteSettings selectedNoteSettings;
     TextView fontSizeTitle, roundPrecisionTitle, exampleText;
 
     int minFontSize = 10;
@@ -41,8 +43,8 @@ public class NoteSettingsActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-        fontSizeBar.setProgress(selectedNote.getNoteSettings().getFontSize() - minFontSize);
-        fontSizeTitle.setText("Font size: " + selectedNote.getNoteSettings().getFontSize());
+        fontSizeBar.setProgress(selectedNoteSettings.getFontSize() - minFontSize);
+        fontSizeTitle.setText("Font size: " + selectedNoteSettings.getFontSize());
 
         roundPrecisionBar = findViewById(R.id.roundPrecisionBar);
         roundPrecisionTitle = findViewById(R.id.roundPrecisionTitle);
@@ -56,16 +58,31 @@ public class NoteSettingsActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-        roundPrecisionBar.setProgress(selectedNote.getNoteSettings().getRoundPrecision());
-        roundPrecisionTitle.setText("Digits after decimal point: " + selectedNote.getNoteSettings().getRoundPrecision());
+        roundPrecisionBar.setProgress(selectedNoteSettings.getRoundPrecision());
+        roundPrecisionTitle.setText("Digits after decimal point: " + selectedNoteSettings.getRoundPrecision());
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                saveSettings(null);
+                finish();
+            }
+        });
     }
 
     public void saveSettings(View view) {
-        NoteSettings selectedNoteSettings = selectedNote.getNoteSettings();
         int fontSize = fontSizeBar.getProgress() + minFontSize;
         int roundPrecision = roundPrecisionBar.getProgress();
         selectedNoteSettings.setFontSize(fontSize);
         selectedNoteSettings.setRoundPrecision(roundPrecision);
+        SQLiteManager sqLiteManager = SQLiteManager.instanceOfDatabase(this);
+        if (selectedNote != null) {
+            sqLiteManager.updateNoteInDB(selectedNote);
+        }
+        else {
+            Note defaultSettingsNote = new Note(-2, "", "", 0, 0, selectedNoteSettings);
+            sqLiteManager.updateNoteInDB(defaultSettingsNote);
+        }
         finish();
     }
 
@@ -73,6 +90,12 @@ public class NoteSettingsActivity extends AppCompatActivity {
         Intent previousIntent = getIntent();
         int passedNoteID = previousIntent.getIntExtra(NoteSettings.SETTINGS_SELECTED_NOTE, -1);
         selectedNote = Note.getNoteForID(passedNoteID);
+        if (selectedNote == null) {
+            selectedNoteSettings = NoteSettings.getDefaultNoteSettings(this);
+        }
+        else {
+            selectedNoteSettings = selectedNote.getNoteSettings();
+        }
     }
 
     public void moreInfo(View view) {

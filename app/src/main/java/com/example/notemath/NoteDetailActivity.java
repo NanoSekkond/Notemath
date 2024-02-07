@@ -29,6 +29,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     private Calculator calc;
 
     private Note selectedNote;
+    private boolean wasChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         initWidgets();
         loadSettings();
         checkForEditNote();
+        wasChanged = false;
     }
 
     @Override
@@ -47,6 +49,22 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private void initWidgets() {
         titleEditText = findViewById(R.id.titleEditText);
+        titleEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                wasChanged = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         descEditText = findViewById(R.id.descriptionEditText);
         descEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -63,7 +81,8 @@ public class NoteDetailActivity extends AppCompatActivity {
                 while(lineStart > 0 && text.charAt(lineStart - 1) != '\n') {
                     lineStart--;
                 }
-                //System.out.println("lastChange: " + lastChange + ", oldLastChange: " + oldLastChange + ", lineStart: " + lineStart);
+                wasChanged = true;
+                System.out.println("lastChange: " + lastChange + ", oldLastChange: " + oldLastChange + ", lineStart: " + lineStart);
             }
 
             @Override
@@ -102,26 +121,29 @@ public class NoteDetailActivity extends AppCompatActivity {
     }
 
     public void saveNote(View view) {
-        SQLiteManager sqLiteManager = SQLiteManager.instanceOfDatabase(this);
-        String title = String.valueOf(titleEditText.getText());
-        String desc = String.valueOf(descEditText.getText());
-        long date = new Date().getTime();
+        if (wasChanged == true) {
+            SQLiteManager sqLiteManager = SQLiteManager.instanceOfDatabase(this);
+            String title = String.valueOf(titleEditText.getText());
+            String desc = String.valueOf(descEditText.getText());
+            long date = new Date().getTime();
 
-        if (selectedNote == null) {
-            int id = unusedID();
-            Note newNote = new Note(id, title, desc, date, lastChange, new NoteSettings(NoteSettings.defaultNoteSettings));
-            selectedNote = newNote;
-            Note.noteArrayList.add(0, selectedNote);
-            sqLiteManager.addNoteToDB(selectedNote);
-        }
-        else {
-            selectedNote.setTitle(title);
-            selectedNote.setDescription(desc);
-            selectedNote.setDate(date);
-            selectedNote.setLastChange(lastChange);
-            Note.noteArrayList.remove(selectedNote);
-            Note.noteArrayList.add(0, selectedNote);
-            sqLiteManager.updateNoteInDB(selectedNote);
+            if (selectedNote == null) {
+                int id = unusedID();
+                Note newNote = new Note(id, title, desc, date, lastChange, new NoteSettings(NoteSettings.getDefaultNoteSettings(this)));
+                selectedNote = newNote;
+                Note.noteArrayList.add(0, selectedNote);
+                sqLiteManager.addNoteToDB(selectedNote);
+            }
+            else {
+                selectedNote.setTitle(title);
+                selectedNote.setDescription(desc);
+                selectedNote.setDate(date);
+                selectedNote.setLastChange(lastChange);
+                selectedNote.setNoteSettings(selectedNote.getNoteSettings());
+                Note.noteArrayList.remove(selectedNote);
+                Note.noteArrayList.add(0, selectedNote);
+                sqLiteManager.updateNoteInDB(selectedNote);
+            }
         }
 
         if (view != null) {
@@ -154,6 +176,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     }
 
     public void openNoteSettings() {
+        wasChanged = true;
         saveNote(null);
         Intent noteSettingsIntent = new Intent(this, NoteSettingsActivity.class);
         noteSettingsIntent.putExtra(NoteSettings.SETTINGS_SELECTED_NOTE, selectedNote.getId());
@@ -166,7 +189,7 @@ public class NoteDetailActivity extends AppCompatActivity {
             settings = selectedNote.getNoteSettings();
         }
         else {
-            settings = NoteSettings.defaultNoteSettings;
+            settings = NoteSettings.getDefaultNoteSettings(this);
         }
         titleEditText.setTextSize(settings.getFontSize());
         descEditText.setTextSize(settings.getFontSize());
