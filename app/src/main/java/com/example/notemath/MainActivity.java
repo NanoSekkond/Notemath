@@ -16,12 +16,15 @@ import android.widget.PopupMenu;
 public class MainActivity extends AppCompatActivity {
 
     private ListView noteListView;
+    private final LocaleManager localeManager = LocaleManager.instanceOfLocale();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getApplicationContext().deleteDatabase("NotesDB");
         setContentView(R.layout.activity_main);
+        //The last changed is used to store the Language in the DB, this is an awful solution but it works and
+        //I don't want to make another table just to store one (1) setting.
+        localeManager.setLocale(SQLiteManager.instanceOfDatabase(this).getNoteFromDB(-2).getLastChange());
         /*
         SQLiteManager sqLiteManager = SQLiteManager.instanceOfDatabase(this);
         for (int i = 0; i < 1000; i++) {
@@ -55,32 +58,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setOnClickListeners() {
-        noteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Note selectedNote = (Note) noteListView.getItemAtPosition(position);
-                Intent editNoteIntent = new Intent(getApplicationContext(), NoteDetailActivity.class);
-                editNoteIntent.putExtra(Note.NOTE_EDIT_EXTRA, selectedNote.getId());
-                startActivity(editNoteIntent);
-            }
+        noteListView.setOnItemClickListener((parent, view, position, id) -> {
+            Note selectedNote = (Note) noteListView.getItemAtPosition(position);
+            Intent editNoteIntent = new Intent(getApplicationContext(), NoteDetailActivity.class);
+            editNoteIntent.putExtra(Note.NOTE_EDIT_EXTRA, selectedNote.getId());
+            startActivity(editNoteIntent);
         });
 
-        noteListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                PopupMenu popup = new PopupMenu(getApplicationContext(), view, Gravity.END);
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.main_activity_note_menu, popup.getMenu());
-                popup.show();
+        noteListView.setOnItemLongClickListener((parent, view, position, id) -> {
+            PopupMenu popup = new PopupMenu(getApplicationContext(), view, Gravity.END);
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.main_activity_note_menu, popup.getMenu());
+            popup.show();
 
-                Note selectedNote = (Note) noteListView.getItemAtPosition(position);
-                MenuItem deleteButton = popup.getMenu().findItem(R.id.deleteNote);
-                deleteButton.setOnMenuItemClickListener(item -> {
-                    deleteNote(selectedNote);
-                    return false;
-                });
-                return true;
-            }
+            Note selectedNote = (Note) noteListView.getItemAtPosition(position);
+            MenuItem deleteButton = popup.getMenu().findItem(R.id.deleteNote);
+            deleteButton.setTitle(LocaleManager.instanceOfLocale().getString("delete_button"));
+            deleteButton.setOnMenuItemClickListener(item -> {
+                deleteNote(selectedNote);
+                return false;
+            });
+            return true;
         });
     }
 
@@ -90,18 +88,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteNote(Note selectedNote) {
+        LocaleManager localeManager = LocaleManager.instanceOfLocale();
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Are you sure you want to delete this note?").setTitle("Delete");
-        builder.setPositiveButton("Yes",
+        builder.setMessage(localeManager.getString("delete_desc")).setTitle(localeManager.getString("delete_title"));
+        builder.setPositiveButton(localeManager.getString("yes_button"),
                 (dialog, which) -> {
                     if (selectedNote != null) {
                         Note.noteArrayList.remove(selectedNote);
                         SQLiteManager sqLiteManager = SQLiteManager.instanceOfDatabase(this);
                         sqLiteManager.deleteNoteFromDB(selectedNote);
-                        setNoteAdapter();
                     }
+                    finish();
                 });
-        builder.setNegativeButton("No",
+        builder.setNegativeButton(localeManager.getString("no_button"),
                 (dialog, which) -> {
                 });
         AlertDialog dialog = builder.create();
@@ -115,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         popup.show();
 
         MenuItem settingsButton = popup.getMenu().findItem(R.id.settings);
+        settingsButton.setTitle(localeManager.getString("settings_button"));
         settingsButton.setOnMenuItemClickListener(item -> {
             openSettings(view);
             return false;

@@ -15,14 +15,15 @@ import java.util.Date;
 import java.util.List;
 
 public class NoteAdapter extends ArrayAdapter<Note> {
+    Context appContext;
     public NoteAdapter(Context context, List<Note> notes) {
         super(context, 0, notes);
+        appContext = context;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
         Note note = getItem(position);
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.note_cell, parent, false);
@@ -32,8 +33,10 @@ public class NoteAdapter extends ArrayAdapter<Note> {
         TextView desc = convertView.findViewById(R.id.cellDesc);
         TextView date = convertView.findViewById(R.id.cellDate);
 
+        LocaleManager localeManager = LocaleManager.instanceOfLocale();
+
         if (note.getTitle().isEmpty()) {
-            title.setText("Title");
+            title.setText(localeManager.getString("note_title"));
         }
         else {
             title.setText(note.getTitle());

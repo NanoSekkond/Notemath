@@ -22,7 +22,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
     private static final String ID_FIELD = "id";
     private static final String TITLE_FIELD = "title";
-    private static final String DESC_FIELD = "desc";
+    private static final String DESC_FIELD = "description";
     private static final String EDITED_FIELD = "date";
     private static final String LAST_CHANGE_FIELD = "lastChange";
     private static final String SETTINGS_FIELD = "settings";

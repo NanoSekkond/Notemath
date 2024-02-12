@@ -38,6 +38,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         initWidgets();
         loadSettings();
         checkForEditNote();
+        setLocale();
         wasChanged = false;
     }
 
@@ -51,9 +52,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         titleEditText = findViewById(R.id.titleEditText);
         titleEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -61,9 +60,7 @@ public class NoteDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-
-            }
+            public void afterTextChanged(Editable s) {}
         });
         descEditText = findViewById(R.id.descriptionEditText);
         descEditText.addTextChangedListener(new TextWatcher() {
@@ -158,18 +155,21 @@ public class NoteDetailActivity extends AppCompatActivity {
         popup.show();
 
         MenuItem deleteButton = popup.getMenu().findItem(R.id.deleteNote);
+        deleteButton.setTitle(LocaleManager.instanceOfLocale().getString("delete_button"));
         deleteButton.setOnMenuItemClickListener(item -> {
             deleteNote(view);
             return false;
         });
 
         MenuItem settingsButton = popup.getMenu().findItem(R.id.noteSettings);
+        settingsButton.setTitle(LocaleManager.instanceOfLocale().getString("note_settings_button"));
         settingsButton.setOnMenuItemClickListener(item -> {
             openNoteSettings();
             return false;
         });
 
         MenuItem helpButton = popup.getMenu().findItem(R.id.noteHelp);
+        helpButton.setTitle(LocaleManager.instanceOfLocale().getString("help_button"));
         helpButton.setOnMenuItemClickListener(item -> {
             return false;
         });
@@ -197,9 +197,10 @@ public class NoteDetailActivity extends AppCompatActivity {
     }
 
     public void deleteNote(View view) {
+        LocaleManager localeManager = LocaleManager.instanceOfLocale();
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-        builder.setMessage("Are you sure you want to delete this note?").setTitle("Delete");
-        builder.setPositiveButton("Yes",
+        builder.setMessage(localeManager.getString("delete_desc")).setTitle(localeManager.getString("delete_title"));
+        builder.setPositiveButton(localeManager.getString("yes_button"),
                 (dialog, which) -> {
                     if (selectedNote != null) {
                         Note.noteArrayList.remove(selectedNote);
@@ -208,7 +209,7 @@ public class NoteDetailActivity extends AppCompatActivity {
                     }
                     finish();
                 });
-        builder.setNegativeButton("No",
+        builder.setNegativeButton(localeManager.getString("no_button"),
                 (dialog, which) -> {
                 });
         AlertDialog dialog = builder.create();
@@ -291,5 +292,10 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private void warning(String warning) {
         Toast.makeText(getApplicationContext(), warning, Toast.LENGTH_SHORT).show();
+    }
+
+    private void setLocale() {
+        titleEditText.setHint(LocaleManager.instanceOfLocale().getString("note_title"));
+        descEditText.setHint(LocaleManager.instanceOfLocale().getString("note_desc"));
     }
 }

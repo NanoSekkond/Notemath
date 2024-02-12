@@ -21,24 +21,27 @@
                 android:textStyle="bold"
                 android:layout_centerHorizontal="true"/>
         </RelativeLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50sp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:id="@+id/languageLayout"
+            android:focusable="true">
             <ImageView
                 android:layout_width="30sp"
                 android:layout_height="30sp"
                 android:layout_margin="10sp"
                 android:src="@drawable/language_icon"/>
             <TextView
+                android:id="@+id/languageSelector"
                 android:layout_width="wrap_content"
                 android:layout_height="30sp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Language: English."
                 android:textColor="@color/darkGray"
-                android:textSize="22sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginVertical="10sp"/>
         </LinearLayout>
@@ -50,20 +53,23 @@
             android:layout_width="match_parent"
             android:layout_height="50sp"
             android:orientation="horizontal"
-            android:onClick="openNoteSettings">
+            android:clickable="true"
+            android:id="@+id/settingsLayout"
+            android:focusable="true">
             <ImageView
                 android:layout_width="30sp"
                 android:layout_height="30sp"
                 android:layout_margin="10sp"
                 android:src="@drawable/calculator_icon"/>
             <TextView
+                android:id="@+id/settingsSelector"
                 android:layout_width="wrap_content"
                 android:layout_height="30sp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Default Settings."
                 android:textColor="@color/darkGray"
-                android:textSize="22sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginVertical="10sp"/>
         </LinearLayout>

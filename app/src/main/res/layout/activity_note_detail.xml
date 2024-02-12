@@ -40,8 +40,7 @@
             android:textStyle="bold"
             android:scrollHorizontally="true"
             android:maxLines="1"
-            android:inputType="textCapSentences"
-            android:hint="Title"/>
+            android:inputType="textCapSentences"/>
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -52,8 +51,7 @@
                 android:textSize="20sp"
                 android:textColor="@color/darkGray"
                 android:layout_marginHorizontal="5dp"
-                android:background="@android:color/transparent"
-                android:hint="Note"/>
+                android:background="@android:color/transparent" />
         </ScrollView>
     </LinearLayout>
     <android.widget.Button
